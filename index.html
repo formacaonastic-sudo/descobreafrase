@@ -14,7 +14,6 @@
     align-items: center;
     min-height: 100vh;
   }
-
   .header {
     display: flex;
     align-items: center;
@@ -23,20 +22,17 @@
     width: 90%;
     max-width: 900px;
   }
-
   .header img {
     width: 170px;
     margin-right: 20px;
     border-radius: 15px;
   }
-
   .header h1 {
     font-size: 36px;
     color: #000000;
     font-weight: bold;
     margin: 0;
   }
-
   .container {
     background-color: #ffffff;
     padding: 40px;
@@ -51,7 +47,6 @@
     justify-content: center;
     position: relative;
   }
-
   .shuffled-phrase {
     font-size: 32px;
     line-height: 1.4;
@@ -59,7 +54,6 @@
     margin-bottom: 25px;
     color: #000000;
   }
-
   textarea {
     font-size: 32px;
     padding: 20px;
@@ -70,7 +64,6 @@
     resize: vertical;
     min-height: 80px;
   }
-
   button {
     font-size: 28px;
     padding: 15px 25px;
@@ -80,23 +73,19 @@
     color: white;
     cursor: pointer;
   }
-
   .feedback {
     font-size: 26px;
     margin-top: 15px;
     height: 35px;
   }
-
   .progress {
     margin-top: 10px;
     font-size: 20px;
   }
-
   .medal-final {
     font-size: 50px;
     margin-top: 20px;
   }
-
   #medalContainer {
     position: absolute;
     top: 10px;
@@ -105,19 +94,16 @@
     flex-wrap: wrap;
     gap: 5px;
   }
-
   .medal-intermediate {
     font-size: 36px;
     transition: transform 0.5s ease;
   }
-
   .developer-credit {
     font-size: 18px;
     text-align: center;
     margin-top: 20px;
     color: #333;
   }
-
   .gerir {
     position: absolute;
     bottom: 10px;
@@ -131,7 +117,6 @@
     cursor: pointer;
   }
   .gerir:hover { background-color: #d68910; }
-
   #restartBtn {
     display: none;
     font-size: 28px;
@@ -169,10 +154,13 @@
 </div>
 
 <div class="developer-credit">
-  Developer: Professor Mário Menezes
+  Developer: CHATGPT / Professor Mário Menezes
 </div>
 
 <script>
+const version = "v1.0"; // ← Alterar para v1.1, v1.2, etc. a cada atualização
+console.log("Jogo versão:", version);
+
 const senhaProfessor = "1234";
 
 // Carrega frases do localStorage ou usa padrão
@@ -181,9 +169,7 @@ let phrases = JSON.parse(localStorage.getItem("frasesJogo")) || [
   "O gato corre rápido.",
   "Eu gosto de ler livros de aventuras emocionantes.",
   "A bola azul caiu atrás do sofá e o menino correu para pegar.",
-  "O sol brilha no céu enquanto os pássaros cantam alegremente pela manhã.",
-  "O Mário é bonito.",
-  "A Joana é alta."
+  "O sol brilha no céu enquanto os pássaros cantam alegremente pela manhã."
 ];
 
 function salvarFrases() {
@@ -250,11 +236,11 @@ function checkPhrase(){
       setTimeout(()=>{
         document.getElementById('shuffledPhrase').innerText="Parabéns! 🎉";
         document.getElementById('userInput').style.display="none";
-        document.querySelector('button').style.display="none"; // botão Enviar
+        document.querySelector('button').style.display="none";
         document.getElementById('feedback').innerText=`Você acertou ${score} de ${phrasesShuffled.length} frases.`;
         document.getElementById('progress').innerText="";
         document.getElementById('medalFinal').innerText=medalSymbol;
-        document.getElementById('restartBtn').style.display="inline-block"; // mostrar botão reiniciar
+        document.getElementById('restartBtn').style.display="inline-block";
       },1000);
     }
   } else {
@@ -263,7 +249,7 @@ function checkPhrase(){
   }
 }
 
-// Função inteligente para separar frases mantendo . ! ?
+// Função para separar frases mantendo . ! ?
 function splitSentences(texto){
   return texto.match(/[^.!?]+[.!?]+/g)?.map(f=>f.trim()) || [];
 }
@@ -298,9 +284,9 @@ function reiniciarJogo(){
   score = 0;
   phrasesShuffled = shuffleArray([...phrases]);
   document.getElementById('userInput').style.display = "block";
-  document.querySelector('button').style.display = "inline-block"; // botão Enviar
+  document.querySelector('button').style.display = "inline-block";
   document.getElementById('restartBtn').style.display = "none";
-  document.getElementById('medalContainer').innerHTML = ""; // limpa medalhas intermediárias
+  document.getElementById('medalContainer').innerHTML = "";
   document.getElementById('medalFinal').innerText = "";
   loadPhrase();
 }
@@ -308,5 +294,4 @@ function reiniciarJogo(){
 loadPhrase();
 </script>
 </body>
-
 </html>
