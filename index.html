@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jogo Educativo - Descobre a frase</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #ADD8E6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 90%;
+    max-width: 900px;
+  }
+
+  .header img {
+    width: 170px;
+    margin-right: 20px;
+    border-radius: 15px;
+  }
+
+  .header h1 {
+    font-size: 36px;
+    color: #000000;
+    font-weight: bold;
+    margin: 0;
+  }
+
+  .container {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 25px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.25);
+    text-align: center;
+    width: 95%;
+    max-width: 800px;
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+  }
+
+  .shuffled-phrase {
+    font-size: 32px;
+    line-height: 1.4;
+    word-wrap: break-word;
+    margin-bottom: 25px;
+    color: #000000;
+  }
+
+  textarea {
+    font-size: 32px;
+    padding: 20px;
+    width: 98%;
+    border-radius: 20px;
+    border: 2px solid #333;
+    margin-bottom: 30px;
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  button {
+    font-size: 28px;
+    padding: 15px 25px;
+    border-radius: 15px;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+  }
+
+  .feedback {
+    font-size: 26px;
+    margin-top: 15px;
+    height: 35px;
+  }
+
+  .progress {
+    margin-top: 10px;
+    font-size: 20px;
+  }
+
+  .medal-final {
+    font-size: 50px;
+    margin-top: 20px;
+  }
+
+  #medalContainer {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .medal-intermediate {
+    font-size: 36px;
+    transition: transform 0.5s ease;
+  }
+
+  .developer-credit {
+    font-size: 18px;
+    text-align: center;
+    margin-top: 20px;
+    color: #333;
+  }
+
+  .gerir {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: 14px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: none;
+    background-color: #f39c12;
+    color: white;
+    cursor: pointer;
+  }
+  .gerir:hover { background-color: #d68910; }
+
+  #restartBtn {
+    display: none;
+    font-size: 28px;
+    margin-top: 20px;
+    padding: 12px 20px;
+    border-radius: 15px;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  #restartBtn:hover { background-color: #1976D2; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <img src="https://png.pngtree.com/png-clipart/20240617/original/pngtree-kids-holding-open-books-and-reading-png-image_15348941.png" 
+       alt="Livro Infantil">
+  <h1>Jogo Educativo - Descobre a frase</h1>
+</div>
+
+<div class="container">
+  <div class="shuffled-phrase" id="shuffledPhrase"></div>
+  <textarea id="userInput" placeholder="Digite a frase correta"></textarea>
+  <br>
+  <button onclick="checkPhrase()">Enviar ✅</button>
+  <div class="feedback" id="feedback"></div>
+  <div class="progress" id="progress"></div>
+  <div class="medal-final" id="medalFinal"></div>
+  <div id="medalContainer"></div>
+
+  <button class="gerir" onclick="gerirFrases()">Gerir 🔑</button>
+  <button id="restartBtn" onclick="reiniciarJogo()">🔄 Recomeçar</button>
+</div>
+
+<div class="developer-credit">
+  Developer: Professor Mário Menezes
+</div>
+
+<script>
+const senhaProfessor = "1234";
+
+// Carrega frases do localStorage ou usa padrão
+let phrases = JSON.parse(localStorage.getItem("frasesJogo")) || [
+  "A tia dá o dado ao Pepe.",
+  "O gato corre rápido.",
+  "Eu gosto de ler livros de aventuras emocionantes.",
+  "A bola azul caiu atrás do sofá e o menino correu para pegar.",
+  "O sol brilha no céu enquanto os pássaros cantam alegremente pela manhã."
+];
+
+function salvarFrases() {
+  localStorage.setItem("frasesJogo", JSON.stringify(phrases));
+}
+
+function shuffleArray(array) {
+  for (let i = array.length -1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+let phrasesShuffled = shuffleArray([...phrases]);
+let current = 0;
+let score = 0;
+
+function shuffleWords(phrase){
+  const words = phrase.split(" ");
+  for(let i=words.length-1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [words[i], words[j]] = [words[j], words[i]];
+  }
+  return words.join(" ");
+}
+
+function loadPhrase(){
+  if(current<phrasesShuffled.length){
+    document.getElementById('shuffledPhrase').innerText = shuffleWords(phrasesShuffled[current]);
+    document.getElementById('userInput').value = '';
+    document.getElementById('feedback').innerText = '';
+    document.getElementById('progress').innerText = `Frase ${current+1} de ${phrasesShuffled.length} | Acertos: ${score}`;
+    document.getElementById('userInput').focus();
+  }
+}
+
+function addIntermediateMedal(){
+  const container = document.getElementById('medalContainer');
+  const medal = document.createElement('div');
+  medal.innerText = "🏅";
+  medal.classList.add('medal-intermediate');
+  container.appendChild(medal);
+  setTimeout(()=>{ medal.style.transform="scale(1.2)"; },50);
+}
+
+function checkPhrase(){
+  const userText = document.getElementById('userInput').value.trim();
+  if(userText === phrasesShuffled[current]){
+    score++;
+    document.getElementById('feedback').style.color="green";
+    document.getElementById('feedback').innerText="Muito bem! ✅";
+    if(score % 5 === 0) addIntermediateMedal();
+    current++;
+    if(current<phrasesShuffled.length){
+      setTimeout(loadPhrase,1000);
+    } else {
+      let medalSymbol="";
+      if(score===phrasesShuffled.length){ medalSymbol="🥇 Ouro!"; }
+      else if(score>=Math.floor(phrasesShuffled.length*2/3)){ medalSymbol="🥈 Prata!"; }
+      else if(score>=Math.floor(phrasesShuffled.length/3)){ medalSymbol="🥉 Bronze!"; }
+      else { medalSymbol="😃 Continue tentando!"; }
+
+      setTimeout(()=>{
+        document.getElementById('shuffledPhrase').innerText="Parabéns! 🎉";
+        document.getElementById('userInput').style.display="none";
+        document.querySelector('button').style.display="none"; // botão Enviar
+        document.getElementById('feedback').innerText=`Você acertou ${score} de ${phrasesShuffled.length} frases.`;
+        document.getElementById('progress').innerText="";
+        document.getElementById('medalFinal').innerText=medalSymbol;
+        document.getElementById('restartBtn').style.display="inline-block"; // mostrar botão reiniciar
+      },1000);
+    }
+  } else {
+    document.getElementById('feedback').style.color="red";
+    document.getElementById('feedback').innerText="Ops! Tente de novo ❌";
+  }
+}
+
+// Função inteligente para separar frases mantendo . ! ?
+function splitSentences(texto){
+  return texto.match(/[^.!?]+[.!?]+/g)?.map(f=>f.trim()) || [];
+}
+
+// Gerir Frases com localStorage
+function gerirFrases(){
+  const senha = prompt("Digite a senha do professor:");
+  if(senha === senhaProfessor){
+    const novoTexto = prompt("Edite as frases (use . ! ? para separar frases):", phrases.join(" "));
+    if(novoTexto){
+      phrases = splitSentences(novoTexto);
+      salvarFrases();
+      phrasesShuffled = shuffleArray([...phrases]);
+      current=0;
+      score=0;
+      document.getElementById('userInput').style.display="block";
+      document.querySelector('button').style.display="inline-block";
+      document.getElementById('restartBtn').style.display="none";
+      document.getElementById('medalContainer').innerHTML = "";
+      document.getElementById('medalFinal').innerText = "";
+      loadPhrase();
+      alert("Frases atualizadas com sucesso!");
+    }
+  } else {
+    alert("Senha incorreta!");
+  }
+}
+
+// Função Recomeçar
+function reiniciarJogo(){
+  current = 0;
+  score = 0;
+  phrasesShuffled = shuffleArray([...phrases]);
+  document.getElementById('userInput').style.display = "block";
+  document.querySelector('button').style.display = "inline-block"; // botão Enviar
+  document.getElementById('restartBtn').style.display = "none";
+  document.getElementById('medalContainer').innerHTML = ""; // limpa medalhas intermediárias
+  document.getElementById('medalFinal').innerText = "";
+  loadPhrase();
+}
+
+loadPhrase();
+</script>
+</body>
+</html>
